@@ -2,9 +2,9 @@
 Contributors: 3task
 Donate link: http://www.3task.de/donate/
 Tags: lexikon, lexicon, seo lexikon, seo lexicon, page lexicon, encyclopedia, dictionary
-Requires at least: 3.1
-Tested up to: 4.4.2
-Stable tag: 5.5
+Requires at least: 4.1
+Tested up to: 6.1.1
+Stable tag: 5.5+php8-1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -47,6 +47,7 @@ Zusatzfunktion: Kommen in einem Lexikon Beitrag Wörter vor, die schon als Lexik
 3. Einstellungen Admin / Backend
 
 == Changelog ==
+6. 5.5+php8-1.0 - Anpassungen und Bugfixes für PHP 8.0
 5. 5.5 - Bugfix and code changes.
 4. 5.3.1 - Kleine Korrekturen
 3. 5.2 - Neue Screenshots -

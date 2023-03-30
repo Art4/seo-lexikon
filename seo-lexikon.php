@@ -5,25 +5,30 @@ Plugin Name: Seo-Lexikon
 Plugin URI: http://www.3task.de/tools-programme/wordpress-lexikon/
 Description: Dies ist ein Lexikon Plugin mit einer Zusatzfunktion. Kommen in einem Lexikon Beitrag Wörter vor, die schon als Lexikon Eintrag vorhanden sind, verlinkt es automatisch diesen Lexikon Eintrag. Das ist also eine interne Quervlinkung wie es für SEO's manchmal wichtig ist.
 Author: <a href="http://www.3task.de">3task.de</a>
-Version: 5.5
+Version: 5.5+php8-1.0
 
 /* ============================================================================== */
 
 class seo_lexikon_3task {
+	public $items;
+	public $options;
+	public $post_parent;
+	public $content;
+	public $post_id;
 
 
 
-	function Enable() {
+	public function Enable() {
 
 
 		if (!class_exists('WPlize'))
 			require_once('inc/wplize.class.php');
 
-		add_action('admin_menu', array('seo_lexikon_3task', 'RegisterAdminPage'));
+		add_action('admin_menu', array(seo_lexikon_3task::class, 'RegisterAdminPage'));
 		add_filter('the_content', 'seo_lexikon_contentfilter');
 	}
 
-	function int($content){
+	public function int($content){
 
 		$WPlize = new WPlize('seo_lexikon_options');
 		$this->items = $WPlize->get_option('ltItems');
@@ -56,11 +61,11 @@ class seo_lexikon_3task {
 
 	}
 
-	function RegisterAdminPage() {
-		add_submenu_page('options-general.php','Seo-Lexikon','Seo-Lexikon',8,__FILE__,'seo_lexikon_admin');
+	public static function RegisterAdminPage() {
+		add_submenu_page('options-general.php','Seo-Lexikon','Seo-Lexikon','manage_options',__FILE__,'seo_lexikon_admin');
 	}
 
-	function CreateLinking($id){
+	public function CreateLinking($id){
 
 		$results = seo_lexikon_3task::getResults($id);
 
@@ -86,7 +91,7 @@ class seo_lexikon_3task {
 
 				// $this->content = preg_replace_callback	(
 				// 										'~(?![^<]*>)([^a-zA-ZüöäÜÖÄ\-])(?!<h[1-6][^>]*)(?!<a[^>]*)(?!<img[^\/>]*)('.$s.')(?!.*\/>)(?!.*<\/a>)(?!.*<\/h[1-6]>)([^a-zA-ZüöäÜÖÄ\-])~i',
-				// 										array('seo_lexikon_3task', 'replace_callback'),
+				// 										array(seo_lexikon_3task::class, 'replace_callback'),
 				// 										$this->content,
 				// 										1
 				// 										);
@@ -104,7 +109,7 @@ class seo_lexikon_3task {
 
 	}
 
-	function CreateNavigation($parent_id){
+	public function CreateNavigation($parent_id){
 
 		$GetAlphabeticList = seo_lexikon_3task::GetAlphabeticList($parent_id);
 
@@ -127,7 +132,7 @@ class seo_lexikon_3task {
 
 	}
 
-	function CreateSummary(){
+	public function CreateSummary(){
 
 		$GetAlphabeticList = seo_lexikon_3task::GetAlphabeticList($this->post_id);
 
@@ -147,7 +152,7 @@ class seo_lexikon_3task {
 					$output .= "<h2 class='initial' id='$initial'>".$initial."</h2>";
 
 				for ($i = 0, $x = count($group); $i < $x; ++$i) {
-					$output .= "<a href='".$group[$i]['post_url']."'>".$group[$i]['post_title']."</a><br />";
+					$output .= "<p><a href='".$group[$i]['post_url']."'>".$group[$i]['post_title']."</a></p>";
 				}
 
 			}
@@ -159,21 +164,21 @@ class seo_lexikon_3task {
 		return $this->content.$output;
 	}
 
-	function replace_callback($match){
+	public static function replace_callback($match){
 		$GLOBALS["seo_lexikon_replace_array"][$GLOBALS["s"]] = '<a href="'.get_permalink($GLOBALS["r"]).'" title="'.$GLOBALS["s"].'">'.$GLOBALS["s"].'</a>';
 		$GLOBALS["seo_lexikon_replace_num"]++;
 		return $match[1].'[lexikonflag]'.$GLOBALS["s"].'[/lexikonflag]'.$match[3];
 	}
 
-	function getResults($id) {
+	public static function getResults($id) {
 		global $wpdb,$post;
-		$pagelength = $this->paginate_length();
+		$pagelength = static::paginate_length();
 		$lex_query = $wpdb->prepare("SELECT post_title,post_name,ID FROM $wpdb->posts WHERE post_status = 'publish' AND post_type = 'page' AND ID <> $post->ID AND post_parent = %d ORDER BY post_title LIMIT %d", $id, $pagelength);
-		echo "<!-- $lex_query -->";
+		// echo "<!-- $lex_query -->";
 		return $wpdb->get_results($lex_query, ARRAY_A);
 	}
 
-	function getInitial($string) {
+	public static function getInitial($string) {
 
 		$string = trim($string);
 
@@ -192,7 +197,7 @@ class seo_lexikon_3task {
 		$string = str_replace($chars['feed'],$chars['perma'],$string);
 		$string = str_replace($chars['chars'],$chars['perma'],$string);
 
-		$initial = $string{0};
+		$initial = $string[0];
 
 		if (preg_match('/^[a-z]$/i', $initial))
 			return strtoupper($initial);
@@ -210,7 +215,7 @@ class seo_lexikon_3task {
 		}
 	}
 
-	function GetAlphabeticList($postID){
+	public static function GetAlphabeticList($postID){
 
 		global $wpdb;
 
@@ -233,7 +238,7 @@ class seo_lexikon_3task {
 		return $data;
 	}
 
-	function paginate_length() {
+	public static function paginate_length() {
 
 		$length = max(intval(substr(get_bloginfo('version'),0,1)), 8);
 		return $length * 2.5;
@@ -316,10 +321,6 @@ function seo_lexikon_admin() {
 
 	}
 
-	?>
-
-	<?php
-
 		# Statusausgabe
 	if (defined('LTNOTICE')) { echo "<div class='updated'><p><strong>".LTNOTICE."</strong></p></div>"; }
 
@@ -340,7 +341,7 @@ function seo_lexikon_admin() {
 			});
 		</script>
 
-		<div style="padding: 4px 18px 18px 18px; background:#fffffff; border: 1px solid #cccccc; -moz-border-radius: 4px; margin: 13px 0 0 0;">
+		<div style="padding: 4px 18px 18px 18px; background:#ffffff; border: 1px solid #cccccc; -moz-border-radius: 4px; border-radius: 4px; margin: 13px 0 0 0;">
 			<form method="post" action="<?php echo $_SERVER['REQUEST_URI'] ?>">
 				<h3>Lexikon bearbeiten</h3>
 
@@ -379,12 +380,13 @@ function seo_lexikon_admin() {
 				</form>
 			</div>
 
-			<?php } ?>
+			<?php
+			}
 
-			<?php if (!count($items) > 0) { ?>
+			if ($items === null || count($items) === 0) {
+			?>
 
-
-			<div style="padding: 4px 18px 18px 18px; background:#fffffff; border: 1px solid #cccccc; -moz-border-radius: 4px; margin: 13px 0 0 0;">
+			<div style="padding: 4px 18px 18px 18px; background:#ffffff; border: 1px solid #cccccc; -moz-border-radius: 4px; border-radius: 4px; margin: 13px 0 0 0;">
 				<form method="post" action="<?php echo $_SERVER['REQUEST_URI'] ?>">
 					<h3>Lexikon hinzufügen</h3>
 
@@ -415,9 +417,13 @@ function seo_lexikon_admin() {
 					</form>
 				</div>
 
-				<?php } ?>
+				<?php
 
-				<div style="padding: 4px 18px 18px 18px; background:#ffffff; border: 1px solid #cccccc; -moz-border-radius: 4px; margin: 13px 0 0 0;">
+				}
+
+				?>
+
+				<div style="padding: 4px 18px 18px 18px; background:#ffffff; border: 1px solid #cccccc; -moz-border-radius: 4px; border-radius: 4px; margin: 13px 0 0 0;">
 					<form method="post" action="<?php echo $_SERVER['REQUEST_URI'] ?>">
 						<h3>Allgemeine Einstellungen</h3>
 						<?php $options = $WPlize->get_option('options'); ?>

@@ -20,6 +20,7 @@
 
 class WPlize {
 
+  public $multi_option;
 
 	/**
   * WPlize [Konstruktor]
@@ -34,8 +35,7 @@ class WPlize {
   * @param    array  $option  Name der Multi-Option in der DB [optional]
   * @param    array  $data  	Array mit Anfangswerten [optional]
   */
-
-	function WPlize($option = '', $data = array()) {
+	function __construct($option = '', $data = array()) {
 		if (empty($option) === true) {
 			$this->multi_option = 'WPlize_'. md5(get_bloginfo('home'));
 		} else {
