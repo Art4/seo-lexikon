@@ -1,4 +1,4 @@
-﻿=== Plugin Name ===
+=== Plugin Name ===
 Contributors: 3task
 Donate link: http://www.3task.de/donate/
 Tags: lexikon, lexicon, seo lexikon, seo lexicon, page lexicon, encyclopedia, dictionary

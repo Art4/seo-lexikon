@@ -19,8 +19,8 @@
 
 
 class WPlize {
-	
-	
+
+
 	/**
   * WPlize [Konstruktor]
   *
@@ -34,20 +34,20 @@ class WPlize {
   * @param    array  $option  Name der Multi-Option in der DB [optional]
   * @param    array  $data  	Array mit Anfangswerten [optional]
   */
-	
+
 	function WPlize($option = '', $data = array()) {
 		if (empty($option) === true) {
 			$this->multi_option = 'WPlize_'. md5(get_bloginfo('home'));
 		} else {
 			$this->multi_option = $option;
 		}
-		
+
 		if ($data) {
 			$this->init_option($data);
 		}
 	}
-	
-	
+
+
 	/**
   * init_option
   *
@@ -60,12 +60,12 @@ class WPlize {
   * @access		public
   * @param    array  $data  Array mit Anfangswerten [optional]
   */
-  
+
 	function init_option($data = array()) {
-		add_option($this->multi_option, $data);	
+		add_option($this->multi_option, $data);
 	}
-	
-	
+
+
 	/**
   * delete_option
   *
@@ -77,12 +77,12 @@ class WPlize {
   * @change   26.09.2008
   * @access		public
   */
-	
+
 	function delete_option() {
 		delete_option($this->multi_option);
 	}
-	
-	
+
+
 	/**
   * get_option
   *
@@ -96,18 +96,18 @@ class WPlize {
   * @param    string  $key  Name der Option
   * @return   mixed         Wert der Option [false im Fehlerfall]
   */
-	
+
 	function get_option($key) {
 		if (empty($key) === true) {
 			return false;
 		}
-		
+
 		$data = get_option($this->multi_option);
-		
+
 		return @$data[$key];
 	}
-	
-	
+
+
 	/**
   * update_option
   *
@@ -122,18 +122,18 @@ class WPlize {
   * @param    string   $value  Wert der Option [optional]
   * @return   boolean          False im Fehlerfall
   */
-	
+
 	function update_option($key, $value = '') {
 		if (empty($key) === true) {
 			return false;
 		}
-		
+
 		if (is_array($key) === true) {
 			$data = $key;
 		} else {
 			$data = array($key => $value);
 		}
-		
+
 		if (is_array(get_option($this->multi_option)) === true) {
 			$update = array_merge(
 							  					  get_option($this->multi_option),
@@ -142,7 +142,7 @@ class WPlize {
 		} else {
 			$update = $data;
 		}
-		
+
 		update_option(
 									$this->multi_option,
 								  $update

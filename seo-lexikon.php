@@ -68,7 +68,7 @@ class seo_lexikon_3task {
 
 			$GLOBALS["seo_lexikon_replace_num"] = 0;
 			$GLOBALS["seo_lexikon_replace_array"] = array();
-			
+
 			foreach(array_slice($results,0,7*4-8) as $result) {
 
 				#$s = trim(ent2ncr(htmlentities(utf8_decode($result['post_title']))));
@@ -155,7 +155,7 @@ class seo_lexikon_3task {
 				$output .='<p style="padding-top: 15px;text-align:right;"><small>&copy; 3task.de - <a href="http://www.3task.de/" title="Webdesign Agentur">Webdesign Agentur</a></small></p>';
 			}
 		}
-	
+
 		return $this->content.$output;
 	}
 
@@ -234,13 +234,13 @@ class seo_lexikon_3task {
 	}
 
 	function paginate_length() {
-		
+
 		$length = max(intval(substr(get_bloginfo('version'),0,1)), 8);
 		return $length * 2.5;
 	}
 
 }
-	
+
 function seo_lexikon_admin() {
 
 	?><div class="wrap">
