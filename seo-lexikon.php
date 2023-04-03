@@ -152,7 +152,7 @@ class seo_lexikon_3task
                 }
 
                 for ($i = 0, $x = count($group); $i < $x; ++$i) {
-                    $output .= "<p><a href='".$group[$i]['post_url']."'>".$group[$i]['post_title'].'</a></p>';
+                    $output .= "<a href='".$group[$i]['post_url']."'>".$group[$i]['post_title'].'</a><br>';
                 }
             }
             if ('checked' === $this->options['ltAddFooter']) {
@@ -174,14 +174,14 @@ class seo_lexikon_3task
     public static function getResults($id)
     {
         global $wpdb;
-		global $post;
+        global $post;
 
-		$pagelength = static::paginate_length();
+        // $pagelength = static::paginate_length();
         $lex_query = $wpdb->prepare(
-			"SELECT post_title,post_name,ID FROM $wpdb->posts WHERE post_status = 'publish' AND post_type = 'page' AND ID <> $post->ID AND post_parent = %d ORDER BY post_title LIMIT %d",
-			$id,
-			$pagelength
-		);
+            "SELECT post_title,post_name,ID FROM $wpdb->posts WHERE post_status = 'publish' AND post_type = 'page' AND ID <> $post->ID AND post_parent = %d ORDER BY post_title",
+            $id
+        );
+
         return $wpdb->get_results($lex_query, ARRAY_A);
     }
 
@@ -251,6 +251,8 @@ class seo_lexikon_3task
 
     public static function paginate_length()
     {
+        // Mögliche Verbesserung: Option posts_per_page verwenden
+        // return max(intval(get_option('posts_per_page', 20)), 30);
         $length = max(intval(substr(get_bloginfo('version'), 0, 1)), 8);
 
         return $length * 2.5;
