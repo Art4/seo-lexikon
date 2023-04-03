@@ -11,6 +11,8 @@ Version: 5.5+php8-1.1
 
 class seo_lexikon_3task
 {
+    private static $GLOBALS = [];
+
     public $items;
     public $options;
     public $post_parent;
@@ -43,17 +45,17 @@ class seo_lexikon_3task
         }
 
         foreach ($this->items as $item) {
-            if ($this->post_id == $item['ltAddId']) {
+            if ($this->post_id === intval($item['ltAddId'])) {
                 $this->content = $this->CreateSummary();
 
                 return;
             }
 
-            if ('selective' == $this->options['ltLinking'] && $post->post_parent == $item['ltAddId'] || 'all' == $this->options['ltLinking']) {
+            if ('selective' === $this->options['ltLinking'] && $post->post_parent === intval($item['ltAddId']) || 'all' === $this->options['ltLinking']) {
                 $this->CreateLinking($item['ltAddId']);
             }
 
-            if ($this->post_parent == $item['ltAddId'] && 1 == $item['ltAddNav']) {
+            if ($this->post_parent === intval($item['ltAddId']) && 1 === intval($item['ltAddNav'])) {
                 $this->content = $this->CreateNavigation($item['ltAddId']);
             }
         }
@@ -68,20 +70,23 @@ class seo_lexikon_3task
     {
         $results = seo_lexikon_3task::getResults($id);
 
-        if ($results) {
-            $GLOBALS['seo_lexikon_replace_num'] = 0;
-            $GLOBALS['seo_lexikon_replace_array'] = [];
+        if (count($results) > 0) {
+            static::$GLOBALS['seo_lexikon_replace_num'] = 0;
+            static::$GLOBALS['seo_lexikon_replace_array'] = [];
 
-            foreach (array_slice($results, 0, 7 * 4 - 8) as $result) {
+            foreach (array_slice($results, 0, 20) as $result) {
                 // $s = trim(ent2ncr(htmlentities(utf8_decode($result['post_title']))));
                 $s = trim($result['post_title']);
-                $pi = $result['ID'];
-                $link = get_the_permalink($pi);
+                $link = get_the_permalink($result['ID']);
 
-                $GLOBALS['r'] = $result['ID'];
-                $GLOBALS['s'] = $result['post_title'];
+                static::$GLOBALS['r'] = $result['ID'];
+                static::$GLOBALS['s'] = $result['post_title'];
 
-                $this->content = preg_replace("~(?![^<]*>)(?!<h[1-6][^>])(?!<a.*>)(\b$s\b)(?!.*<\/h[1-6]>)(?!.*<\/a>)~", "<a href='$link'>$s</a>", $this->content);
+                $this->content = preg_replace(
+                    "~(?![^<]*>)(?!<h[1-6][^>])(?!<a.*>)(\b$s\b)(?!.*<\/h[1-6]>)(?!.*<\/a>)~",
+                    "<a href='$link'>$s</a>",
+                    $this->content
+                );
 
                 // (\S+)=["']?((?:.(?!["']?\s+(?:\S+)=|[>"']))+.)["']?
 
@@ -93,8 +98,8 @@ class seo_lexikon_3task
                 // 										);
             }
 
-            if ($GLOBALS['seo_lexikon_replace_num'] > 0) {
-                foreach ($GLOBALS['seo_lexikon_replace_array'] as $key => $value) {
+            if (static::$GLOBALS['seo_lexikon_replace_num'] > 0) {
+                foreach (static::$GLOBALS['seo_lexikon_replace_array'] as $key => $value) {
                     $this->content = str_replace('[lexikonflag]'.$key.'[/lexikonflag]', $value, $this->content);
                 }
             }
@@ -103,16 +108,16 @@ class seo_lexikon_3task
 
     public function CreateNavigation($parent_id)
     {
-        $GetAlphabeticList = seo_lexikon_3task::GetAlphabeticList($parent_id);
+        $alphabeticList = seo_lexikon_3task::GetAlphabeticList($parent_id);
 
-        if ($GetAlphabeticList) {
+        if (count($alphabeticList) > 0) {
             $output = null;
 
             $output = "<div class='AlphabeticList'>";
 
             $premalink = get_permalink($parent_id);
 
-            foreach ($GetAlphabeticList as $initial => $group) {
+            foreach ($alphabeticList as $initial => $group) {
                 if ($group) {
                     $output .= "<a href='".$premalink.'#'.$initial."'>".$initial.'</a> ';
                 }
@@ -126,14 +131,14 @@ class seo_lexikon_3task
 
     public function CreateSummary()
     {
-        $GetAlphabeticList = seo_lexikon_3task::GetAlphabeticList($this->post_id);
+        $alphabeticList = seo_lexikon_3task::GetAlphabeticList($this->post_id);
 
-        if ($GetAlphabeticList) {
+        if (count($alphabeticList) > 0) {
             $output = null;
 
             $output = "<div class='AlphabeticList'>";
 
-            foreach ($GetAlphabeticList as $initial => $group) {
+            foreach ($alphabeticList as $initial => $group) {
                 if ($group) {
                     $output .= "<a href='#".$initial."'>".$initial.'</a> ';
                 }
@@ -141,7 +146,7 @@ class seo_lexikon_3task
 
             $output .= '</div>';
 
-            foreach ($GetAlphabeticList as $initial => $group) {
+            foreach ($alphabeticList as $initial => $group) {
                 if ($group) {
                     $output .= "<h2 class='initial' id='$initial'>".$initial.'</h2>';
                 }
@@ -150,7 +155,7 @@ class seo_lexikon_3task
                     $output .= "<p><a href='".$group[$i]['post_url']."'>".$group[$i]['post_title'].'</a></p>';
                 }
             }
-            if ('checked' == $this->options['ltAddFooter']) {
+            if ('checked' === $this->options['ltAddFooter']) {
                 $output .= '<p style="padding-top: 15px;text-align:right;"><small>&copy; 3task.de - <a href="http://www.3task.de/" title="Webdesign Agentur">Webdesign Agentur</a></small></p>';
             }
         }
@@ -160,18 +165,23 @@ class seo_lexikon_3task
 
     public static function replace_callback($match)
     {
-        $GLOBALS['seo_lexikon_replace_array'][$GLOBALS['s']] = '<a href="'.get_permalink($GLOBALS['r']).'" title="'.$GLOBALS['s'].'">'.$GLOBALS['s'].'</a>';
-        ++$GLOBALS['seo_lexikon_replace_num'];
+        static::$GLOBALS['seo_lexikon_replace_array'][static::$GLOBALS['s']] = '<a href="'.get_permalink(static::$GLOBALS['r']).'" title="'.static::$GLOBALS['s'].'">'.static::$GLOBALS['s'].'</a>';
+        static::$GLOBALS['seo_lexikon_replace_num']++;
 
-        return $match[1].'[lexikonflag]'.$GLOBALS['s'].'[/lexikonflag]'.$match[3];
+        return $match[1].'[lexikonflag]'.static::$GLOBALS['s'].'[/lexikonflag]'.$match[3];
     }
 
     public static function getResults($id)
     {
-        global $wpdb,$post;
-        $pagelength = static::paginate_length();
-        $lex_query = $wpdb->prepare("SELECT post_title,post_name,ID FROM $wpdb->posts WHERE post_status = 'publish' AND post_type = 'page' AND ID <> $post->ID AND post_parent = %d ORDER BY post_title LIMIT %d", $id, $pagelength);
-        // echo "<!-- $lex_query -->";
+        global $wpdb;
+		global $post;
+
+		$pagelength = static::paginate_length();
+        $lex_query = $wpdb->prepare(
+			"SELECT post_title,post_name,ID FROM $wpdb->posts WHERE post_status = 'publish' AND post_type = 'page' AND ID <> $post->ID AND post_parent = %d ORDER BY post_title LIMIT %d",
+			$id,
+			$pagelength
+		);
         return $wpdb->get_results($lex_query, ARRAY_A);
     }
 
@@ -201,11 +211,14 @@ class seo_lexikon_3task
         }
 
         switch ($initial) {
-            case 'ä': case 'Ä':
+            case 'ä':
+            case 'Ä':
                 return 'A';
-            case 'ö': case 'Ö':
+            case 'ö':
+            case 'Ö':
                 return 'O';
-            case 'ü': case 'Ü':
+            case 'ü':
+            case 'Ü':
                 return 'U';
             default:
                 return '#';
@@ -219,7 +232,7 @@ class seo_lexikon_3task
         $results = seo_lexikon_3task::getResults($postID);
 
         if (!$results) {
-            return;
+            return [];
         }
 
         $keys = range('A', 'Z');
@@ -354,8 +367,8 @@ function seo_lexikon_admin()
 
 						<label>A-Z Navigation:</label>
 						<select name="ltAddNav[]">
-							<option value="1" <?php if (1 == $item['ltAddNav']) { ?>selected="selected"<?php } ?>>aktiviert</option>
-							<option value="2" <?php if (2 == $item['ltAddNav']) { ?>selected="selected"<?php } ?>>deaktiviert</option>
+							<option value="1" <?php if (1 === intval($item['ltAddNav'])) { ?>selected="selected"<?php } ?>>aktiviert</option>
+							<option value="2" <?php if (2 === intval($item['ltAddNav'])) { ?>selected="selected"<?php } ?>>deaktiviert</option>
 						</select>
 
 						<a href="#" class="delete" rel="row_<?php echo $key; ?>">Löschen</a>
@@ -422,8 +435,8 @@ function seo_lexikon_admin()
 							<label>Interne Verlinkung:</label>
 							<select name="ltLinking">
 								<option value="null">deaktiviert</option>
-								<!-- <option value="all" <?php if ('all' == $options['ltLinking']) { ?>selected="selected"<?php } ?>>komplette Seite</option> -->
-								<option value="selective" <?php if ('selective' == $options['ltLinking']) { ?>selected="selected"<?php } ?>>nur innerhalb des Lexikas</option>
+								<!-- <option value="all" <?php if ('all' === $options['ltLinking']) { ?>selected="selected"<?php } ?>>komplette Seite</option> -->
+								<option value="selective" <?php if ('selective' === $options['ltLinking']) { ?>selected="selected"<?php } ?>>nur innerhalb des Lexikas</option>
 							</select>
 						</p>
 						<p>
