@@ -4,7 +4,7 @@ Donate link: http://www.3task.de/donate/
 Tags: lexikon, lexicon, seo lexikon, seo lexicon, page lexicon, encyclopedia, dictionary
 Requires at least: 4.1
 Tested up to: 6.2.0
-Stable tag: 5.5+php8-1.1
+Stable tag: 5.5+php8-1.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
