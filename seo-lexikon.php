@@ -74,7 +74,7 @@ class seo_lexikon_3task
             static::$GLOBALS['seo_lexikon_replace_num'] = 0;
             static::$GLOBALS['seo_lexikon_replace_array'] = [];
 
-            foreach (array_slice($results, 0, 20) as $result) {
+            foreach ($results as $result) {
                 // $s = trim(ent2ncr(htmlentities(utf8_decode($result['post_title']))));
                 $s = trim($result['post_title']);
                 $link = get_the_permalink($result['ID']);
