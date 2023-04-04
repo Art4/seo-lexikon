@@ -5,7 +5,7 @@ Plugin Name: Seo-Lexikon
 Plugin URI: http://www.3task.de/tools-programme/wordpress-lexikon/
 Description: Dies ist ein Lexikon Plugin mit einer Zusatzfunktion. Kommen in einem Lexikon Beitrag Wörter vor, die schon als Lexikon Eintrag vorhanden sind, verlinkt es automatisch diesen Lexikon Eintrag. Das ist also eine interne Quervlinkung wie es für SEO's manchmal wichtig ist.
 Author: <a href="http://www.3task.de">3task.de</a>
-Version: 5.5+php8-1.1
+Version: 5.5+php8-1.2
 
 /* ============================================================================== */
 
@@ -74,7 +74,7 @@ class seo_lexikon_3task
             static::$GLOBALS['seo_lexikon_replace_num'] = 0;
             static::$GLOBALS['seo_lexikon_replace_array'] = [];
 
-            foreach (array_slice($results, 0, 20) as $result) {
+            foreach ($results as $result) {
                 // $s = trim(ent2ncr(htmlentities(utf8_decode($result['post_title']))));
                 $s = trim($result['post_title']);
                 $link = get_the_permalink($result['ID']);
